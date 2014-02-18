@@ -1,4 +1,4 @@
-package com.bala.java.activoids
+package com.bala.scala.activoids
 
 trait Shape {
 
