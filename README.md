@@ -1,0 +1,4 @@
+scala-projects
+==============
+
+Initial play
