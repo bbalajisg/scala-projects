@@ -2,10 +2,23 @@ package com.bala.scala.activoids.gui
 
 import scala.swing._;
 import com.bala.scala.activoids.gui.util._;
-
+import javax.swing.border.EmptyBorder
+	
 object MainFrame extends swing.SimpleSwingApplication {
  
+   import javax.swing.{JFileChooser, filechooser,ImageIcon}
    
+   
+  val statusBar = new Label("HoM") {
+    preferredSize = new Dimension(250, 100)
+    border = new EmptyBorder(20,10,10,10)
+  }
+  
+  val statusIcon = new Label() {
+    icon = new ImageIcon("gamedata/thumbsUp.png")
+    border = new EmptyBorder(20,10,10,10)
+  }
+  
   val myHouse = (new scala.swing.Component {
     
     preferredSize = new Dimension(600,600)
@@ -59,6 +72,16 @@ object MainFrame extends swing.SimpleSwingApplication {
           }))
 
         }
+	   
+	   
+	   contents = new BoxPanel (Orientation.Horizontal) {
+        contents += MainFrame.myHouse
+        contents += new BoxPanel(Orientation.Vertical) {
+          contents += MainFrame.statusBar
+          contents += MainFrame.statusIcon
+        }
+      }
+       
 
 	   }
 	   frame
