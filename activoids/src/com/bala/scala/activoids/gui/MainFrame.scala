@@ -3,20 +3,24 @@ package com.bala.scala.activoids.gui
 import scala.swing._;
 import com.bala.scala.activoids.gui.util._;
 import javax.swing.border.EmptyBorder
+import javax.swing.border.LineBorder
+import java.awt.Color
 	
 object MainFrame extends swing.SimpleSwingApplication {
  
    import javax.swing.{JFileChooser, filechooser,ImageIcon}
    
    
-  val statusBar = new Label("HoM") {
-    preferredSize = new Dimension(250, 100)
+  val statusBar = new Label("Status Bar") {
+    //preferredSize = new Dimension(250, 100)
     border = new EmptyBorder(20,10,10,10)
+   
   }
   
   val statusIcon = new Label() {
-    icon = new ImageIcon("gamedata/thumbsUp.png")
-    border = new EmptyBorder(20,10,10,10)
+    icon = new ImageIcon("resources/imagedata/thumbsUp.png")
+     
+   
   }
   
   val myHouse = (new scala.swing.Component {
@@ -74,9 +78,14 @@ object MainFrame extends swing.SimpleSwingApplication {
         }
 	   
 	   
+	   
 	   contents = new BoxPanel (Orientation.Horizontal) {
+	      
         contents += MainFrame.myHouse
-        contents += new BoxPanel(Orientation.Vertical) {
+        
+        contents += new BoxPanel(Orientation.NoOrientation) {
+          
+            
           contents += MainFrame.statusBar
           contents += MainFrame.statusIcon
         }
@@ -84,6 +93,7 @@ object MainFrame extends swing.SimpleSwingApplication {
        
 
 	   }
+	   MainFrame.myHouse.requestFocus
 	   frame
 	}
 }
