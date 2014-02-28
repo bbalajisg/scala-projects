@@ -1,8 +1,8 @@
 package com.scala.bala.ftp
 
-import scala.util.control.Exception.catching
 import java.net.Socket
-import com.bala.ftp.exception._
+
+import com.scala.bala.ftp.exception.BException
 
 class OpenConnection extends BException{
 
