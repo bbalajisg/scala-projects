@@ -9,7 +9,7 @@ class OpenConnection extends BException{
  
 	def openConnectionWithServer = {
 				
-		val serverIP = FTPConfigurationReader.getConfiguration("MACHINE_IP")
+		val serverIP = FTPConfigurationReader.severIPs(1)
 		val port  = 21
 		 
 		val catchException = getConnectionException		    

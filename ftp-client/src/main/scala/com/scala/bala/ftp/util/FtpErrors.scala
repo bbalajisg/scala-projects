@@ -8,7 +8,7 @@ object FtpErrors extends Enumeration with ResourceUtil{
 	/**
 	 * Call to read error message file
 	 */
-	private val fileContent = readResourceFile("config/ftp_error_messages.properties")
+	private val fileContent = readResourceFile("bin/config/ftp_error_messages.properties")
 	
 	
 	private val content = basicFilter(fileContent)

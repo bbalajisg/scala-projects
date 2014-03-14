@@ -1,8 +1,7 @@
 package com.scala.bala.ftp.util
 
 trait ResourceUtil {
-	
-	
+	 
 	
 	/**
 	 * Takes in line by line and converts to mapped objects
@@ -19,8 +18,9 @@ trait ResourceUtil {
 	  val mapped = pairs.map {
 			case Array(k, v) => k -> v
 	  }
-	
-	   mapped.toMap
+	  
+	  mapped.toMap
+	  
 	}
 	   
 	   
@@ -45,5 +45,15 @@ trait ResourceUtil {
 	   
 		line filter (! _.startsWith("#") ) filter (_ != "")	 
 	    
-	}  
+	}
+	
+	/**
+	 * filename separator
+	 * Example  ers*.log,ers.log*.1,ers.log.2,ers.log.3
+	 */
+	def getFileNames(names:String):Array[String]  = {
+	  val Pattern = " ".r  
+	  val pairs =  names filterNot FTPConfigurationReader.specialChars
+	  Pattern.split(pairs)
+	}
 }

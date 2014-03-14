@@ -1,14 +1,18 @@
 package com.scala.bala.ftp
 
-import java.io._
-import scala.collection.immutable.Set
-
+import java.io.BufferedOutputStream
+import java.io.DataInputStream
+import java.io.FileOutputStream
+import java.io.IOException
+import java.io.PrintStream
+import scala.util.control.Exception.catching
 import com.scala.bala.ftp.exception.BException
 import com.scala.bala.ftp.util.FTPConfigurationReader
-import com.scala.bala.ftp.util.ResourceUtil 
-
-import  scala.util.control.Exception._;
-  
+import com.scala.bala.ftp.util.FTPUtil
+import java.io.PrintWriter
+import java.io.BufferedWriter
+import java.io.FileWriter
+import java.io.File
 
 class FTPClient extends BException{
   
@@ -24,14 +28,58 @@ class FTPClient extends BException{
 	private var code:Int = -1;
 	
 	private var loggedin = false;	  
-	private val fileNames = getFileNames(FTPConfigurationReader.getConfiguration("FILES_TO_READ"))
-	println(fileNames)
+ 
 	  
 	def startClient = {
-	  
-		val user = FTPConfigurationReader.getConfiguration("USER_NAME")
-		val password = FTPConfigurationReader.getConfiguration("USER_PASSWORD")
-			
+	    
+		connectToServerNlogin();
+		
+		/**doCmd("PWD\n")
+		readLine
+				
+		changeDirectory(FTPConfigurationReader.getConfiguration("SERVER_FOLDER_LOCATION"))
+		
+		doCmd("TYPE I\n")
+		readLine*/ 
+		 
+		logout
+		 
+	}
+	
+	
+	private def  createDataSocketPASV :PassiveDataSocket = {
+	 
+		doCmd("PASV\n")
+		
+		val pasv = ftpIn.readLine();
+		val code = FTPUtil.getCode(pasv)
+		
+		if(code==425) getConnectionException(pasv)
+	 
+		val ipAddressPort = FTPUtil.getIPAddressFromPASV(pasv) 
+		new PassiveDataSocket(ipAddressPort._1, ipAddressPort._2 )
+		 
+	}
+	
+	def initgetFile(localPath:String, remotefile: String) = {
+	   
+		val socket = createDataSocketPASV.socket
+		
+		doCmd("RETR "+remotefile+"\r\n")
+		  
+		val joop = scala.io.Source.fromInputStream(socket.getInputStream())		  
+		val writer =  new FileWriter(new File(localPath))
+		
+		try{
+			joop.foreach(writer.write(_))
+		}finally{
+		  writer.close()
+		}
+		
+	}
+	
+	private def connectToServerNlogin() = {
+		 	
 		val connection = new OpenConnection;
 		val socket = connection.openConnectionWithServer
 			
@@ -41,16 +89,7 @@ class FTPClient extends BException{
 		var code:Int = readLine
 		if(code != 220 )  getConnectionException
 		  
-		login( user, password )
-		
-		doCmd("PWD\n")
-		readLine
-		
-		changeDirectory(FTPConfigurationReader.getConfiguration("FOLDER_LOCATION"))
 		 
-		logout
-		
-		
 	}
 	
 	def login(userName:String, password:String )= {
@@ -77,6 +116,7 @@ class FTPClient extends BException{
 	  
 	  doCmd("PWD\n")
 	  readLine
+	    
  	  
 	}
 	
@@ -98,34 +138,16 @@ class FTPClient extends BException{
 	}
 	 
 	private def readLine:Int = {
-		getCode( ftpIn.readLine() )			
+		FTPUtil.getCode( ftpIn.readLine() )			
 	}
 	
-	private def getCode(output:String):Int = {	   
-		println(output)
-	   val regx = "(\\d)*".r	  
-	   
-	   val catchException = getNumberFormatException
-					     
-	   catchException.apply{ regx.findPrefixOf(output).get.toInt } 
-	    
+ 
+	
+	def doCmd(cmd:String) = {	  
+		println( cmd)	   
+		ftpOut.print(cmd)	 
 	}
-	
-	def doCmd(cmd:String) = {
-	  
-		println( cmd)
-	   
-		ftpOut.print(cmd)
-		 
-	}
-	
-	
-	def getFileNames(filesNames:String):Array[String]  = {
-	  val Pattern = " ".r  
-	  val pairs =  filesNames filterNot FTPConfigurationReader.specialChars
-	  Pattern.split(pairs)
-	}
-	
+	 
 	
 	def hardOut = {
 	   
@@ -136,4 +158,11 @@ class FTPClient extends BException{
 	   
 	}
 	
+	def getFile(){
+		 transferMode match {
+		   case ASCII => doCmd("TYPE A\n")
+		   case BINARY => doCmd("TYPE I\n")
+		 }		 
+		 if(readLine != 200)  getConnectionException("Couldn't change xfer")
+	}
 }
