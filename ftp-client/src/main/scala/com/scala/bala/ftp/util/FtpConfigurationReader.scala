@@ -53,6 +53,9 @@ object FTPConfigurationReader extends ResourceUtil{
     private val passwordArray =  getConfiguration("USER_PASSWORD")
     val passwords = passwordArray.mkString.split(",")
     		
+    private val folderLoc =  getConfiguration("SERVER_FOLDER_LOCATION")
+    val folderLocation = folderLoc
+    
 	/**
 	 * Retrieves value for the given key
 	 */

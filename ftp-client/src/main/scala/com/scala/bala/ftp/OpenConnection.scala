@@ -7,14 +7,13 @@ import com.scala.bala.ftp.util.FTPConfigurationReader
 
 class OpenConnection extends BException{
  
-	def openConnectionWithServer = {
-				
-		val serverIP = FTPConfigurationReader.severIPs(1)
+	def openConnectionWithServer(serverIp:String) = {
+				 
 		val port  = 21
 		 
 		val catchException = getConnectionException		    
 					     
-		val socket  =  catchException.apply{new Socket(serverIP, port)}		    
+		val socket  =  catchException.apply{new Socket(serverIp, port)}		    
 		val isConnected  = socket.isConnected();
 		    
 		println("Has connected to "); 

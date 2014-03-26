@@ -22,4 +22,10 @@ object FTPUtil extends BException{
 	}
 	
 	
+	def currentPath(response:String):String = {
+	   val regx = "\"(.*?)\"".r     
+       val bool = regx.findFirstIn(response).mkString      
+       bool.replace("\"", "")
+	}
+	
 }
