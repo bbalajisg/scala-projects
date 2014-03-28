@@ -1,20 +1,17 @@
 package com.scala.bala.ftp
 
-import java.io.BufferedOutputStream
 import java.io.DataInputStream
-import java.io.FileOutputStream
+import java.io.File
+import java.io.FileWriter
 import java.io.IOException
 import java.io.PrintStream
+import java.net.Socket
+
 import scala.util.control.Exception.catching
+
 import com.scala.bala.ftp.exception.BException
 import com.scala.bala.ftp.util.FTPConfigurationReader
 import com.scala.bala.ftp.util.FTPUtil
-import java.io.PrintWriter
-import java.io.BufferedWriter
-import java.io.FileWriter
-import java.io.File
-import java.util.regex.ASCII 
-import java.net.Socket
 
 class FTPClient extends BException{
    
@@ -24,13 +21,14 @@ class FTPClient extends BException{
 	private var transferMode = TransferType.BINARY
 	private var code:Int = -1;
 	
+	private var serverConnection = false;	
 	private var loggedin = false;	  
 	private var isPasv = false;
 	private var socket:Socket = null;
 	
 	private var remoteHost:String = null;
 	private var port:Int = 0;
-	  
+ 	  
 	def  createDataSocketPASV  = {
 	 
 		doCmd("PASV\n")
@@ -74,14 +72,15 @@ class FTPClient extends BException{
 		try{
 			joop.foreach(writer.write(_))
 		}finally{
-		   writer.flush
-		   writer.close	    
+			writer.flush
+		   writer.close
+		   println("Done writing ..." + remotefile)
 		}
-		 
+		logout
 	}
 	
 	private def connectToServer(serverIp:String) = {
-		 	
+		serverConnection = false; 	
 		val connection = new OpenConnection;
 		val socket = connection.openConnectionWithServer(serverIp)
 			
@@ -90,8 +89,9 @@ class FTPClient extends BException{
 			
 		var code:Int = readLine
 		if(code != 220 )  getConnectionException
-		  
-		 
+		
+		serverConnection = true
+		   
 	}
 	
 	def login(serverIp:String, userName:String, password:String )= {
@@ -99,33 +99,35 @@ class FTPClient extends BException{
 		println("Connecting to.... "+  serverIp + "   " +userName + "  "+ password );
 	    
 		connectToServer(serverIp)
-			      
-		doCmd("USER "+userName+"\n")
 		
-		code = readLine
-		if(code != 331 )  getLoginExcepion(code)
-		   
-		doCmd("PASS "+password+"\n")
-		code = readLine
-		if(code != 230 )  getLoginExcepion(code)
-		   
-		loggedin = true;
-		  
-		doCmd("PWD\n")
-		readLine
+		if(serverConnection){
+			doCmd("USER "+userName+"\n")
+			
+			code = readLine
+			if(code != 331 )  getLoginExcepion(code)
+			   
+			doCmd("PASS "+password+"\n")
+			code = readLine
+			if(code != 230 )  getLoginExcepion(code)
+			   
+			loggedin = true;
+			  
+			doCmd("PWD\n")
+			readLine
+		}else{
+			println("Server connection was/is not successful")
+		}
 		  
 	}
 	
 	def getCurrentLocation = {		 
 	  
 		 doCmd("PWD\n")
-		 FTPUtil.currentPath(ftpIn.readLine())
-	 
+		 FTPUtil.currentPath(ftpIn.readLine())	 
 	}
 	
 	def changeDirectory(logLocation:String) = {
-	 
-	  
+	 	  
 		  doCmd("CWD "+logLocation+"\n")
 		  code = readLine
 		 
@@ -136,14 +138,16 @@ class FTPClient extends BException{
 	def logout = {
 	  
 		doCmd("QUIT\n")
-		readLine
-		ftpIn.close()
-		ftpOut.close()
-		
+		readLine 
 		loggedin = false;
 	  
 	}
-	 
+	
+	def disConnectServer = {
+		ftpIn.close()
+		ftpOut.close()
+		serverConnection = false
+	}	 
 	
 	def setTransferMode(mode:TransferType.Value)  = mode match {
 	    
@@ -162,8 +166,6 @@ class FTPClient extends BException{
 	private def readLine:Int = {
 		FTPUtil.getCode( ftpIn.readLine() )			
 	}
-	
- 
 	
 	def doCmd(cmd:String) = {	  
 		println( cmd)	   

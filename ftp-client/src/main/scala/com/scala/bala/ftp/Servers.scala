@@ -1,37 +1,30 @@
 package com.scala.bala.ftp
 
-import scala.actors.Actor
+import akka.actor.Actor
 import com.scala.bala.ftp.util.FTPConfigurationReader
-
-case class ServerConnection(c:Array[String])
-
-
-
-class Servers() extends Actor{
-
-	val download = new Downloaders()        
-		download.start
-    
-	def act(){
-		while(true){
-		  
-			receive{				  
-				case ServerConnection(c) =>  createServerFolders(c)			    
-			}
-		  
-		}
+import akka.actor.Props
+import akka.routing.RoundRobinRouter
+ 
+	object ServerConnection {	    
+		case class connect(c:Array[String])	    
+		 
 	}
 	
-	private def createServerFolders(credential:Array[String]) = {
+	class Servers() extends Actor{
+		
+		 val download = context.actorOf(Props(new Downloaders).withRouter(RoundRobinRouter(nrOfInstances = 10)), "downloaders")
+	  
+		def receive = {
+			case ServerConnection.connect(c) =>  createServerFolders(c)	
+			 
+		}
 		 
-		val fileNames = FTPConfigurationReader.fileName	    
-		val localPath = FTPConfigurationReader.getConfiguration("LOCAL_FOLDER_LOCATION")
-		
-		 val client = new FTPClient(); 
-		
-		fileNames.foreach(c => download ! downloadFile(client:FTPClient, credential,localPath, c))
-		   
-		client.logout
-		  
+		private def createServerFolders(credential:Array[String]) = {
+			
+			 download !  Download.downloadFiles(credential) 
+			 
+		} 
+   
 	}
-}
+	
+	 

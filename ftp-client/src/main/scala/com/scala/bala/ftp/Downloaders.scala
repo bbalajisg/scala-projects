@@ -1,21 +1,32 @@
 package com.scala.bala.ftp
 
-import scala.actors.Actor
+import akka.actor.Actor
+import com.scala.bala.ftp.util.FTPConfigurationReader
 
-
-case class downloadFile(client:FTPClient ,credential:Array[String], localPath:String, remotefile: String)
-
-class Downloaders() extends Actor {
-
+ 
+ 
+	object Download {	    
   
-  def act(){ 
-		while(true){
-		  
-			receive{				  
-				case downloadFile(client, credential, localPath, remotefile) => client.initgetFile(credential, localPath, remotefile)	    
-			}
-		  
-		}
+		case class downloadFiles(credential:Array[String])
+		 
 	}
+
+
+class Downloaders extends Actor {
+		
+		val fileNames = FTPConfigurationReader.fileName	    
+		val localPath = FTPConfigurationReader.getConfiguration("LOCAL_FOLDER_LOCATION")
+  
+		def receive = {
+			case Download.downloadFiles(c) =>  downloadFiles(c)	
+			 
+		}
    
+		
+		private def downloadFiles(credential:Array[String]) = {
+		 
+			val client = new FTPClient();
+			fileNames.foreach(client.initgetFile(credential, localPath, _))
+			 
+		} 
 }
