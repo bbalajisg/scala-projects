@@ -2,8 +2,6 @@ package com.scala.bala.ftp
 
  
 import com.scala.bala.ftp.util._
-import java.util.regex.Pattern
-import scala.actors.Actor
 import akka.actor.ActorSystem
 import akka.actor.Props
 import akka.routing.RoundRobinRouter
@@ -39,7 +37,7 @@ object MainApp {
     credentials.foreach( serverDetails ! ServerConnection(_) )*/
     
     
-    val system = ActorSystem("Server")
+    val system = ActorSystem()
     val server = system.actorOf(Props(new Servers).withRouter(RoundRobinRouter(nrOfInstances = 10)), "Servers")
     
     credentials.foreach( server ! ServerConnection.connect(_) )
