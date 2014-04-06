@@ -1,5 +1,7 @@
 package com.scala.bala.ftp.util
 
+import scala.io.Source
+
 trait ResourceUtil {
 	 
 	
@@ -29,8 +31,8 @@ trait ResourceUtil {
 	 * @param fileName filename with path
 	 */
 	def readResourceFile(fileName:String):Array[String]  = {
-	
-		val source = scala.io.Source.fromFile(fileName)
+
+		val source =  Source.fromURL(getClass.getResource(fileName))
 		
 		val lines = source.getLines.toArray
 		source.close

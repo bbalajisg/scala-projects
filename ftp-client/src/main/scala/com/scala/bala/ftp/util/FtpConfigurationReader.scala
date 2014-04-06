@@ -17,7 +17,7 @@ object FTPConfigurationReader extends ResourceUtil{
 	/**
 	 * Call to read ftp server configuration file
 	 */
-	val fileContent:Array[String] = readResourceFile("bin/config/ftp.properties")
+	val fileContent:Array[String] = readResourceFile("/config/ftp.properties")
 	
 	/**
 	 * filters of comment and empty lines
