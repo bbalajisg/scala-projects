@@ -1,4 +1,4 @@
-scala-projects
+Scala-projects
 ==============
 
-Initial play
+fp-client - Very simple FTP client application demoing Scala and Akka.
