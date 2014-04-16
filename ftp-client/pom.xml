@@ -4,7 +4,7 @@
     <groupId>ftp-client</groupId>
     <artifactId>ftp-client</artifactId>
     <packaging>jar</packaging>
-    <version>1.0-SNAPSHOT</version> 
+    <version>1.0</version>
 
     <dependencies>
          <dependency>
@@ -25,30 +25,43 @@
             <version>2.3.1</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <version>1.2.1</version>
+        </dependency>
     </dependencies>
 
     <build>
         <plugins>
             <plugin>
-		        <groupId>org.scala-tools</groupId>
-		        <artifactId>maven-scala-plugin</artifactId>
-		        <executions>
-		          <execution>
-		            <goals>
-		              <goal>testCompile</goal>
-		            </goals>
-		          </execution>
-		        </executions>
-		      </plugin>
-		
-		      <plugin>
-		        <artifactId>maven-compiler-plugin</artifactId>
-		        <configuration>
-		          <source>1.5</source>
-		          <target>1.5</target>
-		        </configuration>
-		      </plugin>
-		  </plugins> 
+                <groupId>net.alchim31.maven</groupId>
+                <artifactId>scala-maven-plugin</artifactId>
+                <version>3.1.0</version>
+                <configuration>
+                    <recompileMode>incremental</recompileMode>
+                    <useZincServer>true</useZincServer>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>compile</id>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>maven-exec-plugin</artifactId>
+                <configuration>
+                    <executable>java</executable>
+                    <argument>com.scala.bala.ftp.MainApp</argument>
+                </configuration>
+            </plugin>
+
+        </plugins>
     </build>
 
   
