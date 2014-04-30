@@ -1,23 +1,16 @@
 package com.scala.bala
 
-import dispatch._
-import Defaults._
-
-import org.json4s._
-import org.json4s.jackson.JsonMethods._
+import com.scala.bala.util.CurrencyCodes
+import akka.routing.RoundRobinRouter
+import akka.actor.{Props, ActorSystem}
 
 object MainApp {
 
-
   def main(args: Array[String]): Unit = {
 
-    val translateAPI = url("https://www.googleapis.com/language/translate/v2/")
+    val system = ActorSystem()
+    val server = system.actorOf(Props(new QuotesRequestor).withRouter(RoundRobinRouter(nrOfInstances = 10)), "QuotesRequestor")
 
-    val response = Http(translateAPI OK as.String)
-
-    val json = parse(response()) //() is added by Dispatch and forces to await the result forever ==     Await.result(response , forever)
-
-    println("..........")
-    println(json)
+    server ! QuotesRequester.request(CurrencyCodes.currencyPairs)
   }
 }
