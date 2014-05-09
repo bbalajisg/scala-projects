@@ -1,6 +1,7 @@
 package com.bala.interact;
 
 import com.bala.interact.conf.SpringMongoDBConfig;
+import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
@@ -16,7 +17,7 @@ public class DBMainApp {
 
 
     public static void  main(String args[] ){
-        System.out.print("Hey I am in  job");
+        System.out.println("Hey I am in  job");
 
         ApplicationContext ctx = new AnnotationConfigApplicationContext(SpringMongoDBConfig.class);
         MongoOperations mongoOpsContext = (MongoOperations) ctx.getBean("mongoTemplate");
@@ -24,19 +25,24 @@ public class DBMainApp {
         DBCollection albums = mongoOpsContext.getCollection("albums");
         DBCursor albumCursor = albums.find();
 
-        System.out.print("Count albums : " + albums.count());
+        System.out.println("Count albums : " + albums.count());
 
         DBCollection images = mongoOpsContext.getCollection("images");
         DBCursor imagesCursor = images.find();
 
-        System.out.print("Count images : " + images.count());
+        System.out.println("Count images : " + images.count());
 
         while (imagesCursor.hasNext()) {
-            DBObject records = imagesCursor.next();
-            //System.out.println(records);
+            DBObject imageRecords = imagesCursor.next();
+            Object id = imageRecords.get("_id");
+            DBCursor curalbum = albums.find(new BasicDBObject("images", id));
+
+            if(curalbum.count() ==0){
+                images.remove(new BasicDBObject("_id", id));
+            }
         }
 
-
-        System.out.print("Hey I am done with job");
+        System.out.println("Count images : " + mongoOpsContext.getCollection("images").count());
+ 
     }
 }
