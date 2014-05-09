@@ -8,9 +8,11 @@ import scala.util.parsing.json.JSON
 
 class FetchCurrencyQuotes {
 
-  val yahooFinanceApiUrl = "http://query.yahooapis.com/v1/public/yql?q=select%20id,Rate,Date,Time,Ask,Bid%20from%20yahoo.finance.xchange%20where%20pair%20in(%22USDCNY%22)&format=json&env=store://datatables.org/alltableswithkeys"
 
-  def fetchCurrencyRatesAsString() = {
+
+  def fetchCurrencyRatesAsString(currencyPair:String) = {
+
+    val yahooFinanceApiUrl = s"http://query.yahooapis.com/v1/public/yql?q=select%20id,Rate,Date,Time,Ask,Bid%20from%20yahoo.finance.xchange%20where%20pair%20in(%22$currencyPair%22)&format=json&env=store://datatables.org/alltableswithkeys"
 
     val translateAPI = url(yahooFinanceApiUrl)  setProxyServer(new ProxyServer("proxy.int.stee.com.sg", 8080))
 
