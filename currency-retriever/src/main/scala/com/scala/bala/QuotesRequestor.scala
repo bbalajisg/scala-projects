@@ -11,7 +11,7 @@ import akka.actor.Actor
   }
 
   class QuotesRequestor extends Actor{
-     val  fc = new FetchCurrencyQuotes
+     val  fc = new CurrencyQuotesFetcher
     def receive = {
       case QuotesRequester.request(c) => c.foreach(fc.fetchCurrencyRatesAsString(_))
     }
