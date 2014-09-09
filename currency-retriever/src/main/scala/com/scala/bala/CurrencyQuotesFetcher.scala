@@ -1,10 +1,11 @@
 package com.scala.bala
 
-import dispatch._
-import Defaults._
-import com.ning.http.client.ProxyServer
-import scala.util.{Failure, Success}
-import scala.util.parsing.json.JSON
+import java.net.URLEncoder
+import play.api.libs.ws.WS
+import akka.util.Timeout
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{ Await, Future }
+import scala.concurrent.duration._
 
 
 /**
@@ -14,34 +15,21 @@ class CurrencyQuotesFetcher {
 
   def fetchCurrencyRatesAsString(currencyPair:String) = {
 
-    //val yahooFinanceApiUrl = s"http://query.yahooapis.com/v1/public/yql?q=select%20id,Rate,Date,Time,Ask,Bid%20from%20yahoo.finance.xchange%20where%20pair%20in(%22$currencyPair%22)&format=json&env=store://datatables.org/alltableswithkeys"
+    implicit val timeout = Timeout(500000 milliseconds)
 
-    val yahooFinanceApiUrl =  "http://query.yahooapis.com/v1/public/yql?q=select%20id,Rate,Date,Time,Ask,Bid%20from%20yahoo.finance.xchange%20where%20pair%20in(%22USDINR%22)&format=json&env=store://datatables.org/alltableswithkeys"
+    val yahooFinanceApiUrl = s"http://query.yahooapis.com/v1/public/yql?q=select%20id,Rate,Date,Time,Ask,Bid%20from%20yahoo.finance.xchange%20where%20pair%20in(%22$currencyPair%22)&format=json&env=store://datatables.org/alltableswithkeys"
 
-    val translateAPI = url(yahooFinanceApiUrl)
 
-    val response = Http(translateAPI OK as.String)
 
-    response onComplete {
-      case Success(json) => parser(json)
-      case Failure(error) => println(" Error " +error)
+    val jsonContainingCurrency = WS.url(yahooFinanceApiUrl).get()
+
+    val future = jsonContainingCurrency map {
+      response => (response.json)
     }
 
-  }
+    val result = Await.result(future, timeout.duration).asInstanceOf[List[play.api.libs.json.JsObject]]
 
-
-  def parser(data:String) = {
-
-    println(data)
-    val languages = JSON.parseFull(data) match {
-      case Some(x:Map[String, Map[String, Map[String, Any]]]) => {
-        (x.get("query")).last.get("results").last.get("rate").last
-      }
-      case None => Nil
-    }
-
-    println(languages)
+     println(  result  )
 
   }
-
 }

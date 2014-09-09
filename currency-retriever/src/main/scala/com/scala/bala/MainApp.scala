@@ -1,6 +1,7 @@
 package com.scala.bala
 
 import com.scala.bala.util.CurrencyCodes
+
 import akka.routing.RoundRobinRouter
 import akka.actor.{Props, ActorSystem}
 
@@ -10,7 +11,7 @@ object MainApp {
 
     val system = ActorSystem()
     val server = system.actorOf(Props(new QuotesRequestor).withRouter(RoundRobinRouter(nrOfInstances = 10)), "QuotesRequestor")
-
     server ! QuotesRequester.request(CurrencyCodes.currencyPairs)
+
   }
 }

@@ -10,7 +10,7 @@ object ResourceReader {
      * @param fileName filename with path
      */
     def readResourceFile(fileName:String):Array[String]  = {
-
+        val res = getClass.getResource(fileName)
         val source =  Source.fromURL(getClass.getResource(fileName))
 
         val lines = source.getLines.toArray
